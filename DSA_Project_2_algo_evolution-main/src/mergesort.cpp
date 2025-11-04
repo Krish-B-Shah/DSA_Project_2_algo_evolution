@@ -37,3 +37,38 @@ void mergesort(std::span<int> a, const MSDNA& dna, Metrics& m) {
     merge_run(a, b, 0, mid, n, m);
     return;
   }
+
+  // bottom-up iterative mergesort with optional reusable buffer
+  std::vector<int> buf;
+  std::span<int> A = a;
+  std::span<int> B = A;
+  std::vector<int> storage;
+  if (dna.reuseBuffer) {
+    storage.assign(a.begin(), a.end());
+    B = std::span<int>(storage.data(), storage.size());
+  } else {
+    storage.resize(0); // reallocates per pass below
+  }
+  // small-run insertion pre-pass implementation below 
+  if (dna.runThreshold > 0) {
+    for (size_t i=0;i<n;i += (size_t) dna.runThreshold) {
+      size_t r = std::min(n, i + (size_t)dna.runThreshold);
+      insertion_sort(A.subspan(i, r-i), m);
+    }
+  }
+
+  for (size_t width = std::max<size_t>(1, (size_t)dna.runThreshold); width < n; width *= 2) {
+    if (!dna.reuseBuffer) {
+      storage.assign(A.begin(), A.end());
+      B = std::span<int>(storage.data(), storage.size());
+    }
+    // copy A toB
+    for (size_t i=0;i<n;++i) B[i] = A[i], ++m.swaps;
+    for (size_t i=0;i<n; i += 2*width) {
+      size_t left = i;
+      size_t mid  = std::min(i+width, n);
+      size_t right= std::min(i+2*width, n);
+      merge_run(A, B, left, mid, right, m);
+    }
+  }
+}
