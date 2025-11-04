@@ -36,3 +36,51 @@ static std::vector<int> uniform_random(std::size_t n, uint64_t seed) {
   for (size_t i=0;i<n;++i) a[i] = int(rng.next() & 0x7fffffff);
   return a;
 }
+std::vector<int> load_kaggle_column_as_ints(const std::string& csv_path, std::size_t n) {
+  std::ifstream in(csv_path);
+  std::vector<int> vals;
+  vals.reserve(n);
+  if (!in) return vals; // empty to the caller falls back
+  std::string line;
+  // tries to find the first column 
+  std::vector<size_t> numericCols;
+  bool headerParsed = false;
+  while (std::getline(in, line)) {
+    if (line.empty()) continue;
+    std::stringstream ss(line);
+    std::string cell;
+    std::vector<std::string> cells;
+    while (std::getline(ss, cell, ',')) cells.push_back(cell);
+    if (!headerParsed) { headerParsed = true; continue; } // skips header
+    // detect the numeric columns
+    if (numericCols.empty()) {
+      for (size_t c=0;c<cells.size();++c) {
+        double d; char* endp=nullptr;
+        try {
+          d = std::stod(cells[c]);
+          (void)d;
+          numericCols.push_back(c);
+        } catch (...) { /* not numeric */ }
+      }
+      if (numericCols.empty()) continue;
+    }
+    if (!numericCols.empty()) {
+      try {
+        double d = std::stod(cells[numericCols[0]]);
+        long long asInt = (long long) std::llround(d);
+        vals.push_back(int(asInt));
+      } catch (...) {}
+    }
+    if (vals.size() >= n) break;
+  }
+  // stretch to size n
+  if (vals.empty()) return vals;
+  if (vals.size() < n) {
+    size_t m = vals.size();
+    vals.reserve(n);
+    for (size_t i=m;i<n;++i) vals.push_back(vals[i % m]);
+  } else if (vals.size() > n) {
+    vals.resize(n);
+  }
+  return vals;
+}
