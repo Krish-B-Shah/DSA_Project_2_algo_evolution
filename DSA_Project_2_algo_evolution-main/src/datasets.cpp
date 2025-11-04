@@ -18,3 +18,21 @@ static std::vector<int> nearly_sorted(std::size_t n, uint64_t seed) {
   }
   return a;
 }
+static std::vector<int> reverse_sorted(std::size_t n) {
+  std::vector<int> a(n);
+  for (size_t i=0;i<n;++i) a[i] = int(n-1-i);
+  return a;
+}
+static std::vector<int> many_dups(std::size_t n, uint64_t seed) {
+  XRand rng(seed);
+  std::vector<int> a(n);
+  int k = 100; // limited value range
+  for (size_t i=0;i<n;++i) a[i] = int(rng.uniform(0, k-1));
+  return a;
+}
+static std::vector<int> uniform_random(std::size_t n, uint64_t seed) {
+  XRand rng(seed);
+  std::vector<int> a(n);
+  for (size_t i=0;i<n;++i) a[i] = int(rng.next() & 0x7fffffff);
+  return a;
+}
