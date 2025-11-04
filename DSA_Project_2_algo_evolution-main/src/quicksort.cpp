@@ -55,3 +55,50 @@ static size_t partition_hoare(std::span<int> a, int pivot, Metrics& m) {
     ++i; --j;
   }
 }
+static void qs_impl(std::span<int> a, const QSDNA& dna, Metrics& m, int depthLeft) {
+  if (a.size() <= 1) return;
+  if ((int)a.size() <= dna.insertionCutoff) { insertion_sort(a, m); return; }
+  if (depthLeft <= 0) { insertion_sort(a, m); return; } // simple cap fallback
+  // picks the pivot by moving chosen pivot to end for Lomuto 
+  int pv = pivot_choose(a, dna.pivot, m);
+  // place the pivot at end
+  size_t last = a.size()-1;
+  // find a position equal to pv and swap to end
+  for (size_t k=0;k<a.size();++k) if (a[k]==pv) { swap_do(a[k], a[last], m); break; }
+  size_t cut;
+  if (dna.scheme == PartitionScheme::Lomuto) {
+    cut = partition_lomuto(a, pv, m);
+    auto L = a.first(cut);
+    auto R = a.subspan(cut+1);
+    qs_impl(L, dna, m, depthLeft-1);
+    qs_impl(R, dna, m, depthLeft-1);
+  } else {
+    size_t idx = partition_hoare(a, pv, m);
+    auto L = a.first(idx+1);
+    auto R = a.subspan(idx+1);
+    if (dna.tailRecElim) {
+      // Recurse smaller part first and then loop on larger part
+      while (true) {
+        auto left = (L.size() < R.size()) ? L : R;
+        auto right= (L.size() < R.size()) ? R : L;
+        qs_impl(left, dna, m, depthLeft-1);
+        if (right.size() <= 1) break;
+        // tail call elimination by reassigning a slice
+        a = right;
+        pv = pivot_choose(a, dna.pivot, m);
+        last = a.size()-1;
+        for (size_t k=0;k<a.size();++k) if (a[k]==pv) { swap_do(a[k], a[last], m); break; }
+        idx = partition_hoare(a, pv, m);
+        L = a.first(idx+1); R = a.subspan(idx+1);
+        if (R.size() <= 1 && L.size() <= 1) break;
+      }
+    } else {
+      qs_impl(L, dna, m, depthLeft-1);
+      qs_impl(R, dna, m, depthLeft-1);
+    }
+  }
+}
+void quicksort(std::span<int> a, const QSDNA& dna, Metrics& m) {
+  int depth = dna.depthCap > 0 ? dna.depthCap : 64;
+  qs_impl(a, dna, m, depth);
+}
