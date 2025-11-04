@@ -22,3 +22,18 @@ static void merge_run(std::span<int> a, std::span<int> b, size_t left, size_t mi
   while (i<mid) move_do(a[k++], b[i++], m);
   while (j<right) move_do(a[k++], b[j++], m);
 }
+void mergesort(std::span<int> a, const MSDNA& dna, Metrics& m) {
+  size_t n = a.size();
+  if (n<=1) return;
+
+  if (!dna.iterative) {
+    // easy top-down with small-run insertion
+    if (n <= (size_t)dna.runThreshold) { insertion_sort(a, m); return; }
+    size_t mid = n/2;
+    mergesort(a.first(mid), dna, m);
+    mergesort(a.subspan(mid), dna, m);
+    std::vector<int> tmp(a.begin(), a.end());
+    std::span<int> b(tmp.data(), tmp.size());
+    merge_run(a, b, 0, mid, n, m);
+    return;
+  }
