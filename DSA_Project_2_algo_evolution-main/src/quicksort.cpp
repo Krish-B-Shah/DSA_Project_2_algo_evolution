@@ -32,3 +32,26 @@ static int pivot_choose(std::span<int> a, Pivot p, Metrics& m) {
   if ((xz && !yz) || (!xz && yz)) return z;
   return x;
 }
+
+// Lomuto partition below
+static size_t partition_lomuto(std::span<int> a, int pivot, Metrics& m) {
+  size_t i=0;
+  for (size_t j=0;j+1<a.size();++j) {
+    if (less_cmp(a[j], pivot, m)) { swap_do(a[i], a[j], m); ++i; }
+  }
+  // places the pivot at i by swapping with last one
+  swap_do(a[i], a[a.size()-1], m);
+  return i;
+}
+
+// Hoare partition
+static size_t partition_hoare(std::span<int> a, int pivot, Metrics& m) {
+  size_t i=0, j=a.size()-1;
+  while (true) {
+    while (less_cmp(a[i], pivot, m)) ++i;
+    while (less_cmp(pivot, a[j], m)) --j;
+    if (i>=j) return j;
+    swap_do(a[i], a[j], m);
+    ++i; --j;
+  }
+}
