@@ -84,3 +84,14 @@ std::vector<int> load_kaggle_column_as_ints(const std::string& csv_path, std::si
   }
   return vals;
 }
+
+std::vector<int> make_array(std::size_t n, Dist d, uint64_t seed) {
+  switch (d) {
+    case Dist::Uniform:      return uniform_random(n, seed);
+    case Dist::NearlySorted: return nearly_sorted(n, seed);
+    case Dist::Reverse:      return reverse_sorted(n);
+    case Dist::Duplicates:   return many_dups(n, seed);
+    case Dist::Kaggle:       return load_kaggle_column_as_ints("data/kaggle.csv", n);
+  }
+  return uniform_random(n, seed);
+}
