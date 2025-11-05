@@ -16,3 +16,28 @@ static const char* pivot_name(Pivot p) {
 static const char* scheme_name(PartitionScheme s) {
   return s==PartitionScheme::Lomuto ? "Lomuto" : "Hoare";
 }
+void write_csv_row(std::ostream& os,
+                   const std::string& run_id, int step,
+                   Algo algo, Opt opt,
+                   const QSDNA* qs, const MSDNA* ms,
+                   const EvalResult& r,
+                   std::size_t n, int trials_per_dist,
+                   unsigned dist_mask, int pop_idx, double temp) {
+  os << run_id << "," << step << "," << algo_name(algo) << "," << opt_name(opt) << ",";
+  if (qs) {
+    os << pivot_name(qs->pivot) << "," << scheme_name(qs->scheme) << ","
+       << qs->insertionCutoff << "," << qs->depthCap << ","
+       << (qs->tailRecElim?1:0) << ",";
+  } else {
+    os << ",,,,,"; // blank quicksort fields
+  }
+  if (ms) {
+    os << ms->runThreshold << "," << (ms->iterative?1:0) << "," << (ms->reuseBuffer?1:0) << ",";
+  } else {
+    os << ",,,"; // blank mergesort fields
+  }
+  os << std::fixed << std::setprecision(6) << r.fitness_ms << ","
+     << r.comparisons << "," << r.swaps << ","
+     << n << "," << trials_per_dist << "," << dist_mask << ","
+     << pop_idx << "," << temp << "\n";
+}
