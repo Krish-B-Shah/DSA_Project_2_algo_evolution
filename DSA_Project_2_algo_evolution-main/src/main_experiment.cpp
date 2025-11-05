@@ -49,3 +49,29 @@ int main(int argc, char** argv){
   if(cfg.useKaggle) dmask |= (1u << (int)Dist::Kaggle);
 
   string run_id = "run" + to_string(now_ns());
+
+  // checks what to run based on input changes ex. evaluater optimizers
+  bool run_qs = (algo == "qs" || algo == "both");
+  bool run_ms = (algo == "ms" || algo == "both");
+  bool use_ga = (opt == "ga" || opt == "both");
+  bool use_sa = (opt == "sa" || opt == "both");
+  if(run_qs){
+    auto eval = [&](const QSDNA& d){ return eval_qs(d, cfg); };
+    if(use_ga){
+      vector<vector<double>> hist;
+      auto logger = [&](int step, int pop_idx, const QSDNA& dna, const EvalResult& r, double){
+        write_csv_row(ofs, run_id, step, Algo::QS, Opt::GA, &dna, nullptr, r,
+                      cfg.n, cfg.trialsPerDist, dmask, pop_idx, 0.0);
+        if(pop_idx % 10 == 0 || pop_idx == 0) ofs.flush(); // flush periodically
+      };
+      run_ga<QSDNA>(eval, pop, gens, cfg.masterSeed, &hist, logger);
+    }
+    if(use_sa){
+      vector<double> hist;
+      auto logger = [&](int step, int, const QSDNA& dna, const EvalResult& r, double temp){
+        write_csv_row(ofs, run_id, step, Algo::QS, Opt::SA, &dna, nullptr, r,
+                      cfg.n, cfg.trialsPerDist, dmask, -1, temp);
+      };
+      run_sa<QSDNA>(eval, steps, 1.0, 1e-3, cfg.masterSeed, &hist, logger);
+    }
+  }
