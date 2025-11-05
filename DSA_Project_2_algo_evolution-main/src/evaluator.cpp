@@ -31,3 +31,33 @@ struct PrecompSet {
   // map Dist -> base arrays [trial]
   std::unordered_map<int, vector<vector<int>>> base;
 };
+static std::mutex g_pre_mtx;
+static std::unordered_map<PrecompKey, PrecompSet, PrecompKeyHash> g_pre;
+static const PrecompSet& get_pre(const EvalConfig& cfg){
+  if (!cfg.precompute) { static PrecompSet dummy; return dummy; }
+  PrecompKey key{cfg.n, cfg.trialsPerDist, cfg.masterSeed, cfg.useKaggle};
+  std::scoped_lock lk(g_pre_mtx);
+  auto it = g_pre.find(key);
+  if (it != g_pre.end()) return it->second;
+  // builds new
+  PrecompSet set;
+  XRand rng(cfg.masterSeed);
+  auto make_all_for = [&](Dist d){
+    vector<vector<int>> vv(cfg.trialsPerDist);
+    for (int t=0; t<cfg.trialsPerDist; ++t){
+      uint64_t seed = cfg.masterSeed + 1337ull*uint64_t(d) + uint64_t(t);
+      vector<int> arr;
+      if (d == Dist::Kaggle && cfg.useKaggle) {
+        arr = load_kaggle_column_as_ints(cfg.kaggleCsvPath, cfg.n);
+      } else {
+        arr = make_array(cfg.n, d, seed);
+      }
+      vv[t] = std::move(arr);
+    }
+    set.base[int(d)] = std::move(vv);
+  };
+  for (auto d: cfg.dists) make_all_for(d);
+  if (cfg.useKaggle) make_all_for(Dist::Kaggle);
+  auto [it2, _] = g_pre.emplace(key, std::move(set));
+  return it2->second;
+}
