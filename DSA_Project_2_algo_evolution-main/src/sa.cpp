@@ -43,3 +43,12 @@ static DNA run_sa_impl(EvalFnSA<DNA> eval, int steps, double t0, double t1, uint
   (void)best; (void)bestR; // best returned by caller if they want, not rlly needed however
   return cur; // return best-so-far state at the end
 }
+
+template<class DNA>
+DNA run_sa(EvalFnSA<DNA> eval, int steps, double t0, double t1, uint64_t seed,
+           std::vector<double>* history, LogFnSA<DNA> on_eval) {
+  return run_sa_impl<DNA>(eval, steps, t0, t1, seed, history, on_eval);
+}
+// instantiate
+template QSDNA run_sa<QSDNA>(EvalFnSA<QSDNA>, int, double, double, uint64_t, std::vector<double>*, LogFnSA<QSDNA>);
+template MSDNA run_sa<MSDNA>(EvalFnSA<MSDNA>, int, double, double, uint64_t, std::vector<double>*, LogFnSA<MSDNA>);
