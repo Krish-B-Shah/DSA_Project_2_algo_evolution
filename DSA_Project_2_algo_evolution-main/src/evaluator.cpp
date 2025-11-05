@@ -61,3 +61,12 @@ static const PrecompSet& get_pre(const EvalConfig& cfg){
   auto [it2, _] = g_pre.emplace(key, std::move(set));
   return it2->second;
 }
+// helpers for program
+struct Accum {
+  double geo_sum = 0.0; // sum of the log(ms)
+  int count = 0;
+  uint64_t comps = 0, swaps = 0;
+};
+static inline double geo_mean_from_logsum(double s, int n){
+  return std::exp(s / std::max(1,n));
+}
