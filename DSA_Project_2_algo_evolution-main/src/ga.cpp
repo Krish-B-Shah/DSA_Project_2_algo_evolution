@@ -17,3 +17,20 @@ template<> MSDNA mutateDNA(MSDNA d, XRand& rng) {
   if (rng.uniform01() < 0.20) d.reuseBuffer = !d.reuseBuffer;
   return d;
 }
+template<class DNA> static DNA crossover(const DNA& a, const DNA& b, XRand& rng);
+template<> QSDNA crossover(const QSDNA& a, const QSDNA& b, XRand&) {
+  QSDNA c = a;
+  if (XRand(0).uniform01() < 0.5) c.pivot = b.pivot;
+  if (XRand(0).uniform01() < 0.5) c.scheme = b.scheme;
+  if (XRand(0).uniform01() < 0.5) c.insertionCutoff = b.insertionCutoff;
+  if (XRand(0).uniform01() < 0.5) c.depthCap = b.depthCap;
+  if (XRand(0).uniform01() < 0.5) c.tailRecElim = b.tailRecElim;
+  return c;
+}
+template<> MSDNA crossover(const MSDNA& a, const MSDNA& b, XRand&) {
+  MSDNA c = a;
+  if (XRand(0).uniform01() < 0.5) c.runThreshold = b.runThreshold;
+  if (XRand(0).uniform01() < 0.5) c.iterative = b.iterative;
+  if (XRand(0).uniform01() < 0.5) c.reuseBuffer = b.reuseBuffer;
+  return c;
+}
