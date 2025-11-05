@@ -50,3 +50,32 @@ static DNA run_ga_impl(EvalFn<DNA> eval, int pop, int gens, uint64_t seed,
     P[i].fit = P[i].r.fitness_ms;
     if (on_eval) on_eval(0, i, P[i].dna, P[i].r, 0.0);
   }
+  auto tournament_idx = [&](int k)->int{
+    int best = rng.uniform(0, pop-1);
+    for (int i=1;i<k;++i) {
+      int j = rng.uniform(0, pop-1);
+      if (P[j].fit < P[best].fit) best = j;
+    }
+    return best;
+  };
+  for (int g=1; g<=gens; ++g) {
+    std::vector<Item> next; next.reserve(pop);
+    std::sort(P.begin(), P.end(), [](auto& x, auto& y){ return x.fit < y.fit; });
+    next.push_back(P[0]);
+    while ((int)next.size() < pop) {
+      int i1 = tournament_idx(3), i2 = tournament_idx(3);
+      DNA child = crossover<DNA>(P[i1].dna, P[i2].dna, rng);
+      if (rng.uniform01() < 0.7) child = mutateDNA<DNA>(child, rng);
+      EvalResult r = eval(child);
+      next.push_back({child, r.fitness_ms, r});
+    }
+    P.swap(next);
+    if (history) {
+      std::vector<double> genfits; genfits.reserve(pop);
+      for (auto& it: P) genfits.push_back(it.fit);
+      history->push_back(std::move(genfits));
+    }
+    if (on_eval) {
+      for (int i=0;i<pop;++i) on_eval(g, i, P[i].dna, P[i].r, 0.0);
+    }
+  }
