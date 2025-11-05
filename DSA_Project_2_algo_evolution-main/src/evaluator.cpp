@@ -70,3 +70,41 @@ struct Accum {
 static inline double geo_mean_from_logsum(double s, int n){
   return std::exp(s / std::max(1,n));
 }
+template<class SortFn>
+static EvalResult run_all(const EvalConfig& cfg, SortFn sortOne){
+  const int jobs = (cfg.jobs>0) ? cfg.jobs : std::max(1u, std::thread::hardware_concurrency());
+  const auto& pre = get_pre(cfg);
+  vector<std::future<Accum>> futs;
+  futs.reserve(cfg.dists.size()*cfg.trialsPerDist);
+  auto submit = [&](Dist d, int t){
+    return std::async(std::launch::async, [&,d,t]()->Accum{
+      Accum A{};
+      vector<int> work; work.resize(cfg.n);
+      // copy base
+      if (cfg.precompute) {
+        const auto& base = pre.base.at(int(d))[t];
+        std::copy(base.begin(), base.end(), work.begin());
+      } else {
+        // generates
+        uint64_t seed = cfg.masterSeed + 1337ull*uint64_t(d) + uint64_t(t);
+        if (d == Dist::Kaggle && cfg.useKaggle) {
+          work = load_kaggle_column_as_ints(cfg.kaggleCsvPath, cfg.n);
+        } else {
+          work = make_array(cfg.n, d, seed);
+        }
+
+      }
+      // warm up implementation **its not timed
+      { vector<int> tmp(128); for (int i=0;i<128;i++) tmp[i]=128-i; volatile int sink=tmp[0]; (void)sink; }
+      Metrics m{};
+      auto t0 = now_ns();
+      sortOne(work, m); // runs algo
+      auto t1 = now_ns();
+      double ms = double(t1 - t0) / 1e6;
+      A.geo_sum += std::log(std::max(1e-9, ms));
+      A.count += 1;
+      A.comps += m.comparisons;
+      A.swaps += m.swaps;
+      return A;
+    });
+  };
