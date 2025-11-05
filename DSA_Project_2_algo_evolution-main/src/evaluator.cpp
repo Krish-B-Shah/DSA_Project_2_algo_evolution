@@ -108,3 +108,39 @@ static EvalResult run_all(const EvalConfig& cfg, SortFn sortOne){
       return A;
     });
   };
+  // launch all of the jobs
+  for (auto d: cfg.dists)
+    for (int t=0; t<cfg.trialsPerDist; ++t)
+      futs.push_back(submit(d,t));
+  if (cfg.useKaggle)
+    for (int t=0; t<cfg.trialsPerDist; ++t)
+      futs.push_back(submit(Dist::Kaggle,t));
+
+  Accum total{};
+  for (auto& f : futs){
+    Accum a = f.get();
+    total.geo_sum += a.geo_sum;
+    total.count   += a.count;
+    total.comps   += a.comps;
+    total.swaps   += a.swaps;
+  }
+
+  EvalResult r{};
+  r.fitness_ms = geo_mean_from_logsum(total.geo_sum, total.count);
+  r.comparisons = total.comps / std::max(1,total.count); // average counters
+  r.swaps       = total.swaps / std::max(1,total.count);
+  return r;
+}
+// public entry points to be used
+EvalResult eval_qs(const QSDNA& d, const EvalConfig& cfg){
+  auto runOne = [&](vector<int>& a, Metrics& m){
+    quicksort(std::span<int>(a.data(), a.size()), d, m);
+  };
+  return run_all(cfg, runOne);
+}
+EvalResult eval_ms(const MSDNA& d, const EvalConfig& cfg){
+  auto runOne = [&](vector<int>& a, Metrics& m){
+    mergesort(std::span<int>(a.data(), a.size()), d, m);
+  };
+  return run_all(cfg, runOne);
+}
