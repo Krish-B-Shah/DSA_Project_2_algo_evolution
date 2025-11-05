@@ -34,3 +34,19 @@ template<> MSDNA crossover(const MSDNA& a, const MSDNA& b, XRand&) {
   if (XRand(0).uniform01() < 0.5) c.reuseBuffer = b.reuseBuffer;
   return c;
 }
+// ga evaluator implementationn
+template<class DNA>
+static DNA run_ga_impl(EvalFn<DNA> eval, int pop, int gens, uint64_t seed,
+                       std::vector<std::vector<double>>* history,
+                       LogFn<DNA> on_eval) {
+  XRand rng(seed);
+  struct Item { DNA dna; double fit; EvalResult r; };
+  std::vector<Item> P(pop);
+  auto rand_dna = [&]() -> DNA { DNA d{}; return mutateDNA(d, rng); };
+  // population  
+  for (int i=0;i<pop;++i) {
+    P[i].dna = rand_dna();
+    P[i].r   = eval(P[i].dna);
+    P[i].fit = P[i].r.fitness_ms;
+    if (on_eval) on_eval(0, i, P[i].dna, P[i].r, 0.0);
+  }
