@@ -79,3 +79,15 @@ static DNA run_ga_impl(EvalFn<DNA> eval, int pop, int gens, uint64_t seed,
       for (int i=0;i<pop;++i) on_eval(g, i, P[i].dna, P[i].r, 0.0);
     }
   }
+
+  std::sort(P.begin(), P.end(), [](auto& x, auto& y){ return x.fit < y.fit; });
+  return P[0].dna;
+}
+template<class DNA>
+DNA run_ga(EvalFn<DNA> eval, int pop, int gens, uint64_t seed,
+           std::vector<std::vector<double>>* history,
+           LogFn<DNA> on_eval) {
+  return run_ga_impl<DNA>(eval, pop, gens, seed, history, on_eval);
+}
+template QSDNA run_ga<QSDNA>(EvalFn<QSDNA>, int, int, uint64_t, std::vector<std::vector<double>>*, LogFn<QSDNA>);
+template MSDNA run_ga<MSDNA>(EvalFn<MSDNA>, int, int, uint64_t, std::vector<std::vector<double>>*, LogFn<MSDNA>);
