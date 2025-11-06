@@ -130,3 +130,38 @@ void mergesort_simple(std::vector<int>& arr, int left, int right, Metrics& m,
     }
   }
 }
+
+struct QSDNA {
+  int pivot_choice;    // 0 is first, 1 is last, 2 is Median3
+  int partition_type;  // 0=Lomuto, 1=Hoare
+  int cutoff;          // insertion sort cutoff iss [8..64]
+  int depth;           // depth cap is[16..128]
+  bool tail;           // tail recursion elimination
+  double fitness_ms;
+  uint64_t comparisons;
+  uint64_t swaps;
+};
+struct MSDNA {
+  int run_threshold;   // [0..64]
+  bool iterative;      // true=iterative, false=recursive
+  bool reuse_buffer;   // reuse the buffer
+  double fitness_ms;
+  uint64_t comparisons;
+  uint64_t swaps;
+};
+QSDNA create_random_qs_dna(std::mt19937& rng){
+  QSDNA dna;
+  dna.pivot_choice = rng() % 3;
+  dna.partition_type = rng() % 2;
+  dna.cutoff = 8 + (rng() % 57);
+  dna.depth = 16 + (rng() % 113);
+  dna.tail = (rng() % 2) == 1;
+  return dna;
+}
+MSDNA create_random_ms_dna(std::mt19937& rng){
+  MSDNA dna;
+  dna.run_threshold = rng() % 65;
+  dna.iterative = (rng() % 2) == 1;
+  dna.reuse_buffer = (rng() % 2) == 1;
+  return dna;
+}
