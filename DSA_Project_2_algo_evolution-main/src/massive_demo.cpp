@@ -197,3 +197,46 @@ MSDNA evaluate_ms_dna(const MSDNA& dna, std::mt19937& rng){
   result.swaps = m.swaps;
   return result;
 }
+QSDNA crossover_qs(const QSDNA& p1, const QSDNA& p2, std::mt19937& rng){
+  QSDNA child;
+  child.pivot_choice = (rng() % 2) ? p1.pivot_choice : p2.pivot_choice;
+  child.partition_type = (rng() % 2) ? p1.partition_type : p2.partition_type;
+  child.cutoff = (p1.cutoff + p2.cutoff) / 2 + (rng() % 5) - 2;
+  child.cutoff = std::max(8, std::min(64, child.cutoff));
+  child.depth = (p1.depth + p2.depth) / 2 + (rng() % 7) - 3;
+  child.depth = std::max(16, std::min(128, child.depth));
+  child.tail = (rng() % 2) ? p1.tail : p2.tail;
+  return child;
+}
+
+MSDNA crossover_ms(const MSDNA& p1, const MSDNA& p2, std::mt19937& rng){
+  MSDNA child;
+  child.run_threshold = (p1.run_threshold + p2.run_threshold) / 2 + (rng() % 5) - 2;
+  child.run_threshold = std::max(0, std::min(64, child.run_threshold));
+  child.iterative = (rng() % 2) ? p1.iterative : p2.iterative;
+  child.reuse_buffer = (rng() % 2) ? p1.reuse_buffer : p2.reuse_buffer;
+  return child;
+}
+
+void mutate_qs(QSDNA& dna, std::mt19937& rng){
+  if(rng() % 100 < 10) dna.pivot_choice = rng() % 3;
+  if(rng() % 100 < 10) dna.partition_type = rng() % 2;
+  if(rng() % 100 < 15){
+    dna.cutoff += (rng() % 5) - 2;
+    dna.cutoff = std::max(8, std::min(64, dna.cutoff));
+  }
+  if(rng() % 100 < 10){
+    dna.depth += (rng() % 7) - 3;
+    dna.depth = std::max(16, std::min(128, dna.depth));
+  }
+  if(rng() % 100 < 5) dna.tail = !dna.tail;
+}
+
+void mutate_ms(MSDNA& dna, std::mt19937& rng){
+  if(rng() % 100 < 15){
+    dna.run_threshold += (rng() % 5) - 2;
+    dna.run_threshold = std::max(0, std::min(64, dna.run_threshold));
+  }
+  if(rng() % 100 < 10) dna.iterative = !dna.iterative;
+  if(rng() % 100 < 10) dna.reuse_buffer = !dna.reuse_buffer;
+}
