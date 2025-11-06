@@ -44,4 +44,3 @@ target_include_directories(massive_html_gen PRIVATE include)
 # =============================
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 message(STATUS "Configured algo-evolution project successfully.")
-
