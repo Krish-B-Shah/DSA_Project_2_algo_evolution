@@ -165,3 +165,35 @@ MSDNA create_random_ms_dna(std::mt19937& rng){
   dna.reuse_buffer = (rng() % 2) == 1;
   return dna;
 }
+QSDNA evaluate_qs_dna(const QSDNA& dna, std::mt19937& rng){
+  QSDNA result = dna;
+  std::vector<int> testArray(100000);
+  for(int i = 0; i < 100000; i++){
+    testArray[i] = rng() % 1000000;
+  }
+  Metrics m{};
+  auto start = std::chrono::high_resolution_clock::now();
+  quicksort_simple(testArray, 0, 99999, m, dna.pivot_choice, dna.partition_type, dna.cutoff);
+  auto end = std::chrono::high_resolution_clock::now();
+  double ms = std::chrono::duration<double, std::milli>(end - start).count();
+  result.fitness_ms = ms;
+  result.comparisons = m.comparisons;
+  result.swaps = m.swaps;
+  return result;
+}
+MSDNA evaluate_ms_dna(const MSDNA& dna, std::mt19937& rng){
+  MSDNA result = dna;
+  std::vector<int> testArray(100000);
+  for(int i = 0; i < 100000; i++){
+    testArray[i] = rng() % 1000000;
+  }
+  Metrics m{};
+  auto start = std::chrono::high_resolution_clock::now();
+  mergesort_simple(testArray, 0, 99999, m, dna.run_threshold, dna.iterative, dna.reuse_buffer);
+  auto end = std::chrono::high_resolution_clock::now();
+  double ms = std::chrono::duration<double, std::milli>(end - start).count();
+  result.fitness_ms = ms;
+  result.comparisons = m.comparisons;
+  result.swaps = m.swaps;
+  return result;
+}
