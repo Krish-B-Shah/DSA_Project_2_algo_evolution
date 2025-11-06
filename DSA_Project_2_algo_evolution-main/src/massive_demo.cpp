@@ -60,3 +60,42 @@ void quicksort_simple(std::vector<int>& arr, int left, int right, Metrics& m,
     quicksort_simple(arr, i, right, m, pivot_choice, partition_type, cutoff);
   }
 }
+// mergesort
+void mergesort_simple(std::vector<int>& arr, int left, int right, Metrics& m,
+                      int run_threshold, bool iterative, bool reuse_buffer){
+  if(left >= right) return;
+  if(right - left + 1 <= run_threshold){
+    for(int i = left + 1; i <= right; i++){
+      int key = arr[i];
+      int j = i - 1;
+      while(j >= left && (++m.comparisons, arr[j] > key)){
+        arr[j + 1] = arr[j];
+        m.swaps++;
+        j--;
+      }
+      arr[j + 1] = key;
+    }
+    return;
+  }
+  if(!iterative){
+    int mid = (left + right) / 2;
+    mergesort_simple(arr, left, mid, m, run_threshold, iterative, reuse_buffer);
+    mergesort_simple(arr, mid + 1, right, m, run_threshold, iterative, reuse_buffer);
+    std::vector<int> temp(right - left + 1);
+    int i = left, j = mid + 1, k = 0;
+    while(i <= mid && j <= right){
+      if(++m.comparisons, arr[i] <= arr[j]){
+        temp[k++] = arr[i++];
+        m.swaps++;
+      }else{
+        temp[k++] = arr[j++];
+        m.swaps++;
+      }
+    }
+    while(i <= mid){ temp[k++] = arr[i++]; m.swaps++; }
+    while(j <= right){ temp[k++] = arr[j++]; m.swaps++; }
+    for(int idx = 0; idx < k; idx++){
+      arr[left + idx] = temp[idx];
+      m.swaps++;
+    }
+  }else{
