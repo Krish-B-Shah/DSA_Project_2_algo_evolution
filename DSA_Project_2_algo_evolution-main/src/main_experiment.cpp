@@ -75,3 +75,25 @@ int main(int argc, char** argv){
       run_sa<QSDNA>(eval, steps, 1.0, 1e-3, cfg.masterSeed, &hist, logger);
     }
   }
+  if(run_ms){
+    auto eval = [&](const MSDNA& d){ return eval_ms(d, cfg); };
+    if(use_ga){
+      vector<vector<double>> hist;
+      auto logger = [&](int step, int pop_idx, const MSDNA& dna, const EvalResult& r, double){
+        write_csv_row(ofs, run_id, step, Algo::MS, Opt::GA, nullptr, &dna, r,
+                      cfg.n, cfg.trialsPerDist, dmask, pop_idx, 0.0);
+        if(pop_idx % 10 == 0 || pop_idx == 0) ofs.flush();
+      };
+      run_ga<MSDNA>(eval, pop, gens, cfg.masterSeed, &hist, logger);
+    }
+    if(use_sa){
+      vector<double> hist;
+      auto logger = [&](int step, int, const MSDNA& dna, const EvalResult& r, double temp){
+        write_csv_row(ofs, run_id, step, Algo::MS, Opt::SA, nullptr, &dna, r,
+                      cfg.n, cfg.trialsPerDist, dmask, -1, temp);
+      };
+      run_sa<MSDNA>(eval, steps, 1.0, 1e-3, cfg.masterSeed, &hist, logger);
+    }
+  }
+  return 0;
+}
