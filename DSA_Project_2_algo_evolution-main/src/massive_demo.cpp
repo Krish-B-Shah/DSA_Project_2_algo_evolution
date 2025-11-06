@@ -240,3 +240,32 @@ void mutate_ms(MSDNA& dna, std::mt19937& rng){
   if(rng() % 100 < 10) dna.iterative = !dna.iterative;
   if(rng() % 100 < 10) dna.reuse_buffer = !dna.reuse_buffer;
 }
+
+std::string pivot_name(int p){
+  if(p == 0) return "First";
+  if(p == 1) return "Last";
+  return "Median3";
+}
+
+std::string scheme_name(int s){
+  return s == 0 ? "Lomuto" : "Hoare";
+}
+
+int main(int argc, char** argv){
+  std::cout << "MASSIVE Algorithm Evolution - QuickSort + MergeSort!\n";
+  std::cout << "Starting with 1 QS + 1 MS, evolving to 100k particles...\n";
+  
+  const int TOTAL_POPULATION = 1000;
+  const int GENERATIONS = 10;
+  const int ELITE_SIZE = 1000;
+  
+  std::string outfile = "data/logs/massive_evolution.csv";
+  for(int i = 1; i < argc; i++){
+    if(std::string(argv[i]) == "--out" && i + 1 < argc){
+      outfile = argv[i + 1];
+      break;
+    }
+  }
+  
+  std::ofstream csv(outfile);
+  csv << "run_id,step,algo,opt,pivot,scheme,cutoff,depth,tail,run_threshold,iterative,reuse_buffer,fitness_ms,comparisons,swaps,n,trials_per_dist,dist_mask,pop_idx,temp\n";
