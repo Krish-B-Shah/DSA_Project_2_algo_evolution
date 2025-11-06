@@ -1,7 +1,0 @@
-generation,algo,optimizer,dna_params,fitness_ms,comparisons,swaps
-0,qs,ga,"pivot=Median3;scheme=Hoare;insertion=16;depth=32;tre=true",12.5,150000,50000
-1,qs,ga,"pivot=Median3;scheme=Hoare;insertion=16;depth=32;tre=true",11.8,145000,48000
-2,qs,ga,"pivot=Median3;scheme=Hoare;insertion=12;depth=32;tre=true",10.9,140500,47000
-3,qs,ga,"pivot=Median3;scheme=Hoare;insertion=12;depth=28;tre=true",10.2,137000,46000
-4,qs,ga,"pivot=Median3;scheme=Hoare;insertion=8;depth=28;tre=true",9.8,133500,45000
-
