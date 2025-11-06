@@ -99,3 +99,34 @@ void mergesort_simple(std::vector<int>& arr, int left, int right, Metrics& m,
       m.swaps++;
     }
   }else{
+    int n = right - left + 1;
+    std::vector<int> aux;
+    if(reuse_buffer) aux.resize(n);
+    
+    for(int width = run_threshold; width < n; width *= 2){
+      if(!reuse_buffer) aux.resize(n);
+      for(int i = left; i <= right; i += 2 * width){
+        int mid = std::min(i + width - 1, right);
+        int end = std::min(i + 2 * width - 1, right);
+        
+        for(int j = i; j <= end; j++){
+          aux[j - left] = arr[j];
+          m.swaps++;
+        }
+        
+        int l = i, r = mid + 1, k = i;
+        while(l <= mid && r <= end){
+          if(++m.comparisons, aux[l - left] <= aux[r - left]){
+            arr[k++] = aux[l++ - left];
+            m.swaps++;
+          }else{
+            arr[k++] = aux[r++ - left];
+            m.swaps++;
+          }
+        }
+        while(l <= mid){ arr[k++] = aux[l++ - left]; m.swaps++; }
+        while(r <= end){ arr[k++] = aux[r++ - left]; m.swaps++; }
+      }
+    }
+  }
+}
