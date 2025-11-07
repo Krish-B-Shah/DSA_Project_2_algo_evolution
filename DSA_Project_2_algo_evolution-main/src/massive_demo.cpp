@@ -292,3 +292,24 @@ int main(int argc, char** argv){
               << " (GA:" << qs_ga_pop.size() << " SA:" << qs_sa_pop.size() << ")"
               << ", MS: " << total_ms 
               << " (GA:" << ms_ga_pop.size() << " SA:" << ms_sa_pop.size() << ")\n";
+    
+    // Evaluate all of the populations
+    std::vector<std::future<QSDNA>> qs_ga_futures, qs_sa_futures;
+    std::vector<std::future<MSDNA>> ms_ga_futures, ms_sa_futures;
+    for(auto& dna : qs_ga_pop){
+      qs_ga_futures.push_back(std::async(std::launch::async, [&, dna](){ return evaluate_qs_dna(dna, rng); }));
+    }
+    for(auto& dna : ms_ga_pop){
+      ms_ga_futures.push_back(std::async(std::launch::async, [&, dna](){ return evaluate_ms_dna(dna, rng); }));
+    }
+    for(auto& dna : qs_sa_pop){
+      qs_sa_futures.push_back(std::async(std::launch::async, [&, dna](){ return evaluate_qs_dna(dna, rng); }));
+    }
+    for(auto& dna : ms_sa_pop){
+      ms_sa_futures.push_back(std::async(std::launch::async, [&, dna](){ return evaluate_ms_dna(dna, rng); }));
+    }
+    
+    for(size_t i = 0; i < qs_ga_pop.size(); i++) qs_ga_pop[i] = qs_ga_futures[i].get();
+    for(size_t i = 0; i < ms_ga_pop.size(); i++) ms_ga_pop[i] = ms_ga_futures[i].get();
+    for(size_t i = 0; i < qs_sa_pop.size(); i++) qs_sa_pop[i] = qs_sa_futures[i].get();
+    for(size_t i = 0; i < ms_sa_pop.size(); i++) ms_sa_pop[i] = ms_sa_futures[i].get();
