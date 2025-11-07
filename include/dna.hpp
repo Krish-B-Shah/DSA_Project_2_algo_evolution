@@ -1,29 +1,18 @@
 #pragma once
 
-// DNA structs for quicksort and mergesort configs
-
-enum class Pivot {
-    First,
-    Last,
-    Median3
-};
-
-enum class PartitionScheme {
-    Lomuto,
-    Hoare
-};
+enum class Pivot { First, Last, Median3 };
+enum class PartitionScheme { Lomuto, Hoare };
 
 struct QSDNA {
-    Pivot pivot = Pivot::Median3;  // default to median
-    PartitionScheme scheme = PartitionScheme::Hoare;
-    int insertionCutoff = 16;  // switch to insertion sort for small arrays
-    int depthCap = 0;  // 0 means use default, otherwise cap recursion depth
-    bool tailRecElim = false;  // tail recursion optimization
+  Pivot pivot{Pivot::Median3};
+  PartitionScheme scheme{PartitionScheme::Hoare};
+  int insertionCutoff{16};     // [0..64]
+  int depthCap{64};            // ~ [floor(log2 n) .. floor(2*log2 n)]
+  bool tailRecElim{true};
 };
 
 struct MSDNA {
-    int runThreshold = 16;  // use insertion sort for runs smaller than this
-    bool iterative = true;  // use iterative instead of recursive
-    bool reuseBuffer = true;  // reuse buffer to save memory allocations
+  int runThreshold{16};        // [0..64]
+  bool iterative{true};
+  bool reuseBuffer{true};
 };
-

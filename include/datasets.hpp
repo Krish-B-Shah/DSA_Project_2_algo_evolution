@@ -4,7 +4,8 @@
 #include <cstdint>
 #include <string>
 
-enum class Dist { Uniform, NearlySorted, Reverse, ManyDup, Kaggle }; // Kaggle optional
+// Forward declare Dist - defined in evaluator.hpp
+enum class Dist;
 
 std::vector<int> make_array(std::size_t n, Dist d, uint64_t seed);
 

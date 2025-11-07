@@ -1,13 +1,3 @@
-# Build outputs
 build/
 *.o
-*.obj
-*.exe
-*.out
-*.log
-
-# VSCode
-.vscode/
-
-# Data outputs
-data/logs/
+*.a
