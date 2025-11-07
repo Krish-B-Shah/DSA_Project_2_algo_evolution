@@ -313,3 +313,112 @@ int main(int argc, char** argv){
     for(size_t i = 0; i < ms_ga_pop.size(); i++) ms_ga_pop[i] = ms_ga_futures[i].get();
     for(size_t i = 0; i < qs_sa_pop.size(); i++) qs_sa_pop[i] = qs_sa_futures[i].get();
     for(size_t i = 0; i < ms_sa_pop.size(); i++) ms_sa_pop[i] = ms_sa_futures[i].get();
+    std::sort(qs_ga_pop.begin(), qs_ga_pop.end(), [](auto& a, auto& b){ return a.fitness_ms < b.fitness_ms; });
+    std::sort(ms_ga_pop.begin(), ms_ga_pop.end(), [](auto& a, auto& b){ return a.fitness_ms < b.fitness_ms; });
+    std::sort(qs_sa_pop.begin(), qs_sa_pop.end(), [](auto& a, auto& b){ return a.fitness_ms < b.fitness_ms; });
+    std::sort(ms_sa_pop.begin(), ms_sa_pop.end(), [](auto& a, auto& b){ return a.fitness_ms < b.fitness_ms; });
+    
+    if(!qs_ga_pop.empty()) std::cout << "🏆 Best QS-GA: " << qs_ga_pop[0].fitness_ms << "ms\n";
+    if(!qs_sa_pop.empty()) std::cout << "🏆 Best QS-SA: " << qs_sa_pop[0].fitness_ms << "ms\n";
+    if(!ms_ga_pop.empty()) std::cout << "🏆 Best MS-GA: " << ms_ga_pop[0].fitness_ms << "ms\n";
+    if(!ms_sa_pop.empty()) std::cout << "🏆 Best MS-SA: " << ms_sa_pop[0].fitness_ms << "ms\n";
+    int pop_idx = 0;
+    for(const auto& dna : qs_ga_pop){
+      csv << run_id << "," << gen << ",QS,GA," 
+          << pivot_name(dna.pivot_choice) << "," << scheme_name(dna.partition_type) << ","
+          << dna.cutoff << "," << dna.depth << "," << (dna.tail ? "1" : "0") << ",,,,"
+          << dna.fitness_ms << "," << dna.comparisons << "," << dna.swaps 
+          << ",100000,1,1," << pop_idx++ << ",0.000000\n";
+    }
+    pop_idx = 0;
+    for(const auto& dna : qs_sa_pop){
+      double temp = 1.0 * (GENERATIONS - gen) / GENERATIONS;
+      csv << run_id << "," << gen << ",QS,SA," 
+          << pivot_name(dna.pivot_choice) << "," << scheme_name(dna.partition_type) << ","
+          << dna.cutoff << "," << dna.depth << "," << (dna.tail ? "1" : "0") << ",,,,"
+          << dna.fitness_ms << "," << dna.comparisons << "," << dna.swaps 
+          << ",100000,1,1,-1," << temp << "\n";
+    }
+    pop_idx = 0;
+    for(const auto& dna : ms_ga_pop){
+      csv << run_id << "," << gen << ",MS,GA,,,"
+          << ",,," << dna.run_threshold << ","
+          << (dna.iterative ? "1" : "0") << "," << (dna.reuse_buffer ? "1" : "0") << ","
+          << dna.fitness_ms << "," << dna.comparisons << "," << dna.swaps 
+          << ",100000,1,1," << pop_idx++ << ",0.000000\n";
+    }
+    pop_idx = 0;
+    for(const auto& dna : ms_sa_pop){
+      double temp = 1.0 * (GENERATIONS - gen) / GENERATIONS;
+      csv << run_id << "," << gen << ",MS,SA,,,"
+          << ",,," << dna.run_threshold << ","
+          << (dna.iterative ? "1" : "0") << "," << (dna.reuse_buffer ? "1" : "0") << ","
+          << dna.fitness_ms << "," << dna.comparisons << "," << dna.swaps 
+          << ",100000,1,1,-1," << temp << "\n";
+    }
+    
+    if(gen < GENERATIONS - 1){
+      int target_per_algo = TOTAL_POPULATION / 4;
+      int elite_qs_ga = std::min(100, (int)qs_ga_pop.size());
+      std::vector<QSDNA> new_qs_ga;
+      for(int i = 0; i < elite_qs_ga; i++) new_qs_ga.push_back(qs_ga_pop[i]);
+      std::uniform_int_distribution<> qs_ga_dist(0, elite_qs_ga - 1);
+      while((int)new_qs_ga.size() < target_per_algo && !qs_ga_pop.empty()){
+        QSDNA child = crossover_qs(qs_ga_pop[qs_ga_dist(rng)], qs_ga_pop[qs_ga_dist(rng)], rng);
+        mutate_qs(child, rng);
+        new_qs_ga.push_back(child);
+      }
+      
+      int elite_ms_ga = std::min(100, (int)ms_ga_pop.size());
+      std::vector<MSDNA> new_ms_ga;
+      for(int i = 0; i < elite_ms_ga; i++) new_ms_ga.push_back(ms_ga_pop[i]);
+      std::uniform_int_distribution<> ms_ga_dist(0, elite_ms_ga - 1);
+      while((int)new_ms_ga.size() < target_per_algo && !ms_ga_pop.empty()){
+        MSDNA child = crossover_ms(ms_ga_pop[ms_ga_dist(rng)], ms_ga_pop[ms_ga_dist(rng)], rng);
+        mutate_ms(child, rng);
+        new_ms_ga.push_back(child);
+      }
+      double temp = 1.0 * (GENERATIONS - gen) / GENERATIONS;
+      std::vector<QSDNA> new_qs_sa;
+      std::vector<MSDNA> new_ms_sa;
+      
+      if(!qs_sa_pop.empty()){
+        QSDNA best = qs_sa_pop[0];
+        for(int i = 0; i < target_per_algo; i++){
+          QSDNA candidate = best;
+          mutate_qs(candidate, rng);
+          candidate = evaluate_qs_dna(candidate, rng);
+          if(candidate.fitness_ms < best.fitness_ms || 
+             (rng() % 1000) < (1000 * temp)){
+            best = candidate;
+          }
+          new_qs_sa.push_back(best);
+        }
+      }
+      
+      if(!ms_sa_pop.empty()){
+        MSDNA best = ms_sa_pop[0];
+        for(int i = 0; i < target_per_algo; i++){
+          MSDNA candidate = best;
+          mutate_ms(candidate, rng);
+          candidate = evaluate_ms_dna(candidate, rng);
+          if(candidate.fitness_ms < best.fitness_ms || 
+             (rng() % 1000) < (1000 * temp)){
+            best = candidate;
+          }
+          new_ms_sa.push_back(best);
+        }
+      }
+      qs_ga_pop = std::move(new_qs_ga);
+      ms_ga_pop = std::move(new_ms_ga);
+      qs_sa_pop = std::move(new_qs_sa);
+      ms_sa_pop = std::move(new_ms_sa);
+    }
+  }
+  csv.close();
+  std::cout << "\n MASSIVE EVOLUTION is COMPLETE!\n";
+  std::cout << "📊 Final: QS-GA=" << qs_ga_pop.size() << ", QS-SA=" << qs_sa_pop.size()
+            << ", MS-GA=" << ms_ga_pop.size() << ", MS-SA=" << ms_sa_pop.size() << "\n";
+  std::cout << "📈 Data saved to: " << outfile << "\n";
+  return 0;
+}
