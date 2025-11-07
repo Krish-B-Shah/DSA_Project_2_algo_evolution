@@ -1,18 +1,8 @@
-# 🧬 Algorithmic Evolution — Darwin for Sorting Algorithms
+# Algorithmic Evolution
 
-<div align="center">
+Watch sorting algorithms evolve in real-time using genetic algorithms and simulated annealing. QuickSort and MergeSort optimize themselves on 100K+ element datasets.
 
-**Watch sorting algorithms evolve in real-time using genetic algorithms and simulated annealing. See QuickSort and MergeSort optimize themselves on 100K+ element datasets.**
-
-[![Visualization](https://img.shields.io/badge/Visualization-Live-green)](http://localhost:8010/viz/index.html)
-[![C++](https://img.shields.io/badge/C++-17-blue)](https://en.cppreference.com/)
-[![License](https://img.shields.io/badge/License-MIT-yellow)](LICENSE)
-
-**[🚀 Try it Now](#quick-start) | [📊 Screenshots](#features) | [🧪 How It Works](#how-it-works)**
-
-</div>
-
-### ⚡ TL;DR - Quick Commands
+## Quick Commands
 
 **macOS/Linux:**
 ```bash
@@ -34,51 +24,43 @@ python -m http.server 8010 --directory .
 # Then open http://localhost:8010/viz/index.html
 ```
 
----
+## What is this?
 
-## 🌟 What Is This?
+So basically, I got curious about whether we could use evolution to improve sorting algorithms. Instead of manually tweaking parameters, I built a system that evolves them using genetic algorithms and simulated annealing.
 
-Imagine if Charles Darwin studied sorting algorithms instead of finches. That's this project.
+You can watch QuickSort and MergeSort mutate, compete, and evolve over generations to find better configurations. All visualized in real-time with particles floating around representing different algorithm configurations.
 
-**Algorithmic Evolution** is an interactive visualization that evolves sorting algorithm parameters using evolutionary computation. Watch as QuickSort and MergeSort **mutate, compete, and evolve** to become faster, more efficient versions of themselves—all visualized in real-time as particles in a dynamic 3D-like space.
+### The core idea
 
-### 🎯 The Insane Idea
+Normal algorithm analysis is pretty static - you implement something, benchmark it, maybe tweak a few things, and that's it. I wanted to see what happens if you let algorithms evolve themselves.
 
-Traditional algorithm analysis is static. You study one implementation, measure it, and move on. But what if algorithms could **evolve**?
+- Genetic Algorithms: Simulate natural selection - mutate parameters, keep the best ones, evolve over generations
+- Simulated Annealing: Inspired by metallurgy - slowly cool down solutions to find optimal configurations
+- 100K+ Element Datasets: Test on real-world scale data from Kaggle
+- Live Visualization: Watch evolution happen in real-time
+- Leaderboards: Track which algorithm-optimizer combinations perform best
 
-- 🧬 **Genetic Algorithms (GA)**: Simulate natural selection—mutate parameters, keep the fittest, evolve over generations
-- 🔥 **Simulated Annealing (SA)**: Inspired by metallurgy—slowly "cool down" solutions to find global optima
-- 📊 **100K+ Element Datasets**: Real-world scale testing on massive datasets from Kaggle
-- 🎨 **Live Visualization**: Watch evolution happen in real-time with buttery-smooth 60fps rendering
-- 🏆 **Leaderboards**: Track which algorithm-optimizer combinations dominate
+## Features
 
-This isn't just optimization—it's **algorithmic evolution in action**.
+### Evolutionary Optimization
+- QuickSort Evolution: Evolves pivot selection, partitioning schemes, insertion sort cutoffs, depth limits, tail recursion elimination
+- MergeSort Evolution: Evolves run thresholds, iterative vs recursive modes, buffer reuse strategies
+- Two Optimizers: Compare Genetic Algorithms vs Simulated Annealing side by side
 
----
+### Interactive Visualization
+- Real-Time Evolution: Watch particles (algorithm configurations) evolve across generations
+- Color Coding: Red means slow, yellow is medium, green is fast
+- Progressive Reveal: Start with 2 seed algorithms, watch them evolve into thousands
+- Performance Metrics: Track comparisons, swaps, execution time, space complexity
+- Dynamic Leaderboards: See which algorithm-optimizer combos are winning
 
-## 🎬 Features
+### Performance
+- Handles 100K+ particles smoothly
+- 100K element sorting tests
+- Interactive controls: play, pause, step through generations, adjust speed
+- Filter and explore: focus on specific algorithms or optimizers
 
-### 🧬 Evolutionary Optimization
-- **QuickSort Evolution**: Evolves pivot selection, partitioning schemes, cutoffs, depth limits, tail recursion
-- **MergeSort Evolution**: Evolves run thresholds, iterative vs recursive, buffer reuse strategies
-- **Dual Optimizers**: Compare Genetic Algorithms vs Simulated Annealing head-to-head
-
-### 📊 Interactive Visualization
-- **Real-Time Evolution**: Watch particles (algorithm configurations) evolve across generations
-- **Fitness-Based Coloring**: Red (poor) → Yellow (medium) → Green (top-tier)
-- **Progressive Reveal**: Start with 2 seed algorithms, watch them evolve into thousands
-- **Performance Metrics**: Track comparisons, swaps, execution time, space complexity
-- **Dynamic Leaderboards**: See which algorithm-optimizer combos dominate
-
-### 🚀 Performance
-- **Buttery Smooth 60fps**: Optimized rendering handles 100K+ particles effortlessly
-- **100K Element Sorting**: Test on real-world scale datasets
-- **Interactive Controls**: Play, pause, step through generations, adjust speed
-- **Filter & Explore**: Focus on specific algorithms or optimizers
-
----
-
-## 🚀 Quick Start
+## Quick Start
 
 ### Step 1: Prerequisites
 
@@ -225,20 +207,20 @@ python -m http.server 8010 --directory .
 
 ### Step 8: Open the Visualization
 
-1. **Open your browser** and navigate to:
+1. Open your browser and navigate to:
    ```
    http://localhost:8010/viz/index.html
    ```
 
-2. **Load your data:**
-   - Click **"Choose File"** and select `data/logs/sample.csv`
-   - OR click **"Demo (Kaggle)"** if you downloaded the Kaggle dataset
-   - OR paste a CSV URL in the text field and click **"Load"**
+2. Load your data:
+   - Click "Choose File" and select `data/logs/sample.csv`
+   - OR click "Demo (Kaggle)" if you downloaded the Kaggle dataset
+   - OR paste a CSV URL in the text field and click "Load"
 
-3. **Start exploring:**
-   - Click **"Play"** to watch evolution in real-time
-   - Use **"Prev/Next"** to step through generations
-   - Adjust **"Speed"** slider to control playback
+3. Start exploring:
+   - Click "Play" to watch evolution in real-time
+   - Use "Prev/Next" to step through generations
+   - Adjust "Speed" slider to control playback
    - Click on particles to see detailed DNA parameters
 
 ### Troubleshooting
@@ -273,18 +255,16 @@ python -m http.server 8080 --directory .
 - On macOS/Linux: Check `./build/experiment`
 - On Windows: Check `.\build\Release\experiment.exe` or `.\build\Debug\experiment.exe`
 
----
-
-## 🧪 How It Works
+## How It Works
 
 ### The Evolutionary Process
 
-1. **Initialization**: Start with random algorithm parameter configurations (DNA)
-2. **Evaluation**: Test each configuration on 100K element datasets
-3. **Selection**: Keep the fastest configurations (fitness = execution time)
-4. **Mutation/Crossover**: Create new configurations from the fittest
-5. **Evolution**: Repeat for multiple generations
-6. **Visualization**: Watch as particles evolve and converge toward optimal solutions
+1. Initialization: Start with random algorithm parameter configurations (DNA)
+2. Evaluation: Test each configuration on 100K element datasets
+3. Selection: Keep the fastest configurations (fitness = execution time)
+4. Mutation/Crossover: Create new configurations from the fittest ones
+5. Evolution: Repeat for multiple generations
+6. Visualization: Watch as particles evolve and converge toward optimal solutions
 
 ### Algorithm Parameters (DNA)
 
@@ -314,9 +294,7 @@ python -m http.server 8080 --directory .
 - Gradual "cooling" to find global optima
 - Best for: Fine-tuning near-optimal solutions
 
----
-
-## 📖 Usage
+## Usage
 
 ### Running Experiments
 
@@ -359,19 +337,19 @@ Generate your own evolutionary data:
 
 ### Visualization Controls
 
-- **Play/Pause**: Start/stop automatic generation progression
-- **Prev/Next**: Step through generations manually
-- **Speed Slider**: Adjust playback speed (0.1x - 4x)
-- **Optimizer Filter**: Show All, GA only, or SA only
-- **Algorithm Filter**: Show All, QuickSort only, or MergeSort only
-- **Reveal Mode**: Progressive (2 → 100K), All at step, or Top 1K
-- **Color Mode**: Fitness tiers or Algorithm-based coloring
-- **Demo (Kaggle)**: Load pre-generated dataset with both algorithms and optimizers
+- Play/Pause: Start/stop automatic generation progression
+- Prev/Next: Step through generations manually
+- Speed Slider: Adjust playback speed (0.1x - 4x)
+- Optimizer Filter: Show All, GA only, or SA only
+- Algorithm Filter: Show All, QuickSort only, or MergeSort only
+- Reveal Mode: Progressive (2 → 100K), All at step, or Top 1K
+- Color Mode: Fitness tiers or Algorithm-based coloring
+- Demo (Kaggle): Load pre-generated dataset with both algorithms and optimizers
 
 ### Loading Custom Data
 
-1. **Generate CSV**: Run experiments (see above)
-2. **Load in Viz**: 
+1. Generate CSV: Run experiments (see above)
+2. Load in Viz: 
    - Click "Choose File" and select your CSV
    - Or paste CSV URL in the text field and click "Load"
    - Or use "Demo (Kaggle)" for pre-loaded data
@@ -384,32 +362,7 @@ The visualization accepts CSV files with the following columns:
 - `run_threshold`, `iterative`, `reuse_buffer` (MergeSort)
 - `fitness_ms`, `comparisons`, `swaps`, `n`
 
----
-
-## 🎨 Screenshots & Examples
-
-### Evolution in Action
-Watch algorithms evolve from random configurations to optimized solutions:
-- **Generation 0**: Scattered particles (random DNA)
-- **Generation 5**: Clustering toward efficient regions
-- **Generation 10**: Converged on optimal configurations
-
-### Leaderboard Tracking
-See which combinations dominate:
-- **QS (time)**: Best QuickSort execution time
-- **MS (time)**: Best MergeSort execution time
-- **GA BEST**: Best Genetic Algorithm result
-- **SA BEST**: Best Simulated Annealing result
-
-### Interactive Exploration
-- Click particles to see detailed DNA parameters
-- Filter by algorithm or optimizer
-- Track space complexity estimates
-- Compare time vs space trade-offs
-
----
-
-## 🏗️ Project Structure
+## Project Structure
 
 ```
 algo-evolution/
@@ -437,29 +390,25 @@ algo-evolution/
 └── build/               # Build artifacts
 ```
 
----
-
-## 🔬 Technical Details
+## Technical Details
 
 ### Performance Optimizations
-- **Filter Caching**: Avoids redundant particle filtering
-- **Color Computation Caching**: Pre-computes particle colors
-- **Viewport Culling**: Skips off-screen particles
-- **Adaptive Draw Cap**: Scales with screen resolution
-- **Context State Batching**: Minimizes canvas operations
-- **60fps Rendering**: Smooth playback even with 100K+ particles
+- Filter Caching: Avoids redundant particle filtering
+- Color Computation Caching: Pre-computes particle colors
+- Viewport Culling: Skips off-screen particles
+- Adaptive Draw Cap: Scales with screen resolution
+- Context State Batching: Minimizes canvas operations
+- 60fps Rendering: Smooth playback even with 100K+ particles
 
 ### Dataset
 Uses the [Kaggle Benchmark Dataset for Sorting Algorithms](https://www.kaggle.com/datasets/bekiremirhanakay/benchmark-dataset-for-sorting-algorithms) for real-world testing on 100K+ element arrays.
 
 ### Algorithm Implementations
-- **QuickSort**: Optimized with multiple pivot strategies and partitioning schemes
-- **MergeSort**: Supports iterative/recursive modes and buffer reuse
+- QuickSort: Optimized with multiple pivot strategies and partitioning schemes
+- MergeSort: Supports iterative/recursive modes and buffer reuse
 - Both implementations track comparisons, swaps, and execution time
 
----
-
-## 🤝 Contributing
+## Contributing
 
 Contributions welcome! Areas for improvement:
 - Additional sorting algorithms (HeapSort, RadixSort, etc.)
@@ -468,41 +417,11 @@ Contributions welcome! Areas for improvement:
 - Performance profiling tools
 - Export/import of evolved configurations
 
----
-
-## 📄 License
+## License
 
 MIT License - feel free to use this for research, education, or just because evolution is cool.
 
----
-
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - Kaggle dataset: [bekiremirhanakay/benchmark-dataset-for-sorting-algorithms](https://www.kaggle.com/datasets/bekiremirhanakay/benchmark-dataset-for-sorting-algorithms)
 - Inspired by evolutionary computation and algorithmic analysis
-
----
-
-## 🚀 Why This Is Insane
-
-Most people study algorithms. We **evolve** them.
-
-This project bridges three worlds:
-1. **Computer Science**: Algorithm analysis and optimization
-2. **Evolutionary Biology**: Natural selection and adaptation
-3. **Data Visualization**: Real-time interactive exploration
-
-It's not just code—it's a **digital ecosystem** where algorithms compete, mutate, and evolve. Watch as random QuickSort configurations become optimized powerhouses. See MergeSort adapt its strategy over generations. It's evolution, but for code.
-
-**And it runs at 60fps with 100K+ particles.**
-
----
-
-<div align="center">
-
-**Made with 🧬 by evolution enthusiasts**
-
-[⭐ Star this repo](https://github.com/yourusername/algo-evolution) | [🐛 Report Issues](https://github.com/yourusername/algo-evolution/issues) | [💡 Contribute](https://github.com/yourusername/algo-evolution/pulls)
-
-</div>
-
