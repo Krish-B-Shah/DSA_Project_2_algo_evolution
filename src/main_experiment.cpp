@@ -54,16 +54,19 @@ int main(int argc, char** argv){
   // Note: Default n=100000 (from EvalConfig) - use --n=1000 for quick testing
   // Kaggle dataset requires --use-kaggle flag (default uses generated test arrays)
   
-  // Show what we're running
-  cerr << "Running: algo=" << algo << ", opt=" << opt 
-       << ", pop=" << pop << ", gens=" << gens 
-       << ", n=" << cfg.n << ", trials=" << cfg.trialsPerDist;
-  if(cfg.useKaggle) {
-    cerr << ", dataset=Kaggle (" << cfg.kaggleCsvPath << ")";
-  } else {
-    cerr << ", dataset=generated test arrays";
+  // Silent by default - only show output if --verbose flag is set
+  bool verbose = hasflag(args, "--verbose");
+  if(verbose) {
+    cerr << "Running: algo=" << algo << ", opt=" << opt 
+         << ", pop=" << pop << ", gens=" << gens 
+         << ", n=" << cfg.n << ", trials=" << cfg.trialsPerDist;
+    if(cfg.useKaggle) {
+      cerr << ", dataset=Kaggle (" << cfg.kaggleCsvPath << ")";
+    } else {
+      cerr << ", dataset=generated test arrays";
+    }
+    cerr << "\nOutput: " << out << "\n";
   }
-  cerr << "\nOutput: " << out << "\n";
   // fast mode that helps with slow loadd times 
   if(hasflag(args, "--fast")){
     cfg.n = 1000;
@@ -90,55 +93,55 @@ int main(int argc, char** argv){
   if(run_qs){
     auto eval = [&](const QSDNA& d){ return eval_qs(d, cfg); };
     if(use_ga){
-      cerr << "Running QuickSort + GA...\n";
+      if(verbose) cerr << "Running QuickSort + GA...\n";
       vector<vector<double>> hist;
       auto logger = [&](int step, int pop_idx, const QSDNA& dna, const EvalResult& r, double){
         write_csv_row(ofs, run_id, step, Algo::QS, Opt::GA, &dna, nullptr, r,
                       cfg.n, cfg.trialsPerDist, dmask, pop_idx, 0.0);
         if(pop_idx % 10 == 0 || pop_idx == 0) ofs.flush(); // flush periodically
-        if(pop_idx == 0) cerr << "  Gen " << step << "/" << gens << " (fitness: " << r.fitness_ms << " ms)\n";
+        if(verbose && pop_idx == 0) cerr << "  Gen " << step << "/" << gens << " (fitness: " << r.fitness_ms << " ms)\n";
       };
       run_ga<QSDNA>(eval, pop, gens, cfg.masterSeed, &hist, logger);
-      cerr << "QuickSort + GA completed.\n";
+      if(verbose) cerr << "QuickSort + GA completed.\n";
     }
     if(use_sa){
-      cerr << "Running QuickSort + SA...\n";
+      if(verbose) cerr << "Running QuickSort + SA...\n";
       vector<double> hist;
       auto logger = [&](int step, int, const QSDNA& dna, const EvalResult& r, double temp){
         write_csv_row(ofs, run_id, step, Algo::QS, Opt::SA, &dna, nullptr, r,
                       cfg.n, cfg.trialsPerDist, dmask, -1, temp);
-        if(step % 5 == 0 || step == 0) cerr << "  Step " << step << "/" << steps << " (fitness: " << r.fitness_ms << " ms)\n";
+        if(verbose && (step % 5 == 0 || step == 0)) cerr << "  Step " << step << "/" << steps << " (fitness: " << r.fitness_ms << " ms)\n";
       };
       run_sa<QSDNA>(eval, steps, 1.0, 1e-3, cfg.masterSeed, &hist, logger);
-      cerr << "QuickSort + SA completed.\n";
+      if(verbose) cerr << "QuickSort + SA completed.\n";
     }
   }
   if(run_ms){
     auto eval = [&](const MSDNA& d){ return eval_ms(d, cfg); };
     if(use_ga){
-      cerr << "Running MergeSort + GA...\n";
+      if(verbose) cerr << "Running MergeSort + GA...\n";
       vector<vector<double>> hist;
       auto logger = [&](int step, int pop_idx, const MSDNA& dna, const EvalResult& r, double){
         write_csv_row(ofs, run_id, step, Algo::MS, Opt::GA, nullptr, &dna, r,
                       cfg.n, cfg.trialsPerDist, dmask, pop_idx, 0.0);
         if(pop_idx % 10 == 0 || pop_idx == 0) ofs.flush();
-        if(pop_idx == 0) cerr << "  Gen " << step << "/" << gens << " (fitness: " << r.fitness_ms << " ms)\n";
+        if(verbose && pop_idx == 0) cerr << "  Gen " << step << "/" << gens << " (fitness: " << r.fitness_ms << " ms)\n";
       };
       run_ga<MSDNA>(eval, pop, gens, cfg.masterSeed, &hist, logger);
-      cerr << "MergeSort + GA completed.\n";
+      if(verbose) cerr << "MergeSort + GA completed.\n";
     }
     if(use_sa){
-      cerr << "Running MergeSort + SA...\n";
+      if(verbose) cerr << "Running MergeSort + SA...\n";
       vector<double> hist;
       auto logger = [&](int step, int, const MSDNA& dna, const EvalResult& r, double temp){
         write_csv_row(ofs, run_id, step, Algo::MS, Opt::SA, nullptr, &dna, r,
                       cfg.n, cfg.trialsPerDist, dmask, -1, temp);
-        if(step % 5 == 0 || step == 0) cerr << "  Step " << step << "/" << steps << " (fitness: " << r.fitness_ms << " ms)\n";
+        if(verbose && (step % 5 == 0 || step == 0)) cerr << "  Step " << step << "/" << steps << " (fitness: " << r.fitness_ms << " ms)\n";
       };
       run_sa<MSDNA>(eval, steps, 1.0, 1e-3, cfg.masterSeed, &hist, logger);
-      cerr << "MergeSort + SA completed.\n";
+      if(verbose) cerr << "MergeSort + SA completed.\n";
     }
   }
-  cerr << "Experiment completed! Results written to: " << out << "\n";
+  if(verbose) cerr << "Experiment completed! Results written to: " << out << "\n";
   return 0;
 }
