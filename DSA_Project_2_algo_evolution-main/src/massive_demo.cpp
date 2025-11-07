@@ -269,3 +269,26 @@ int main(int argc, char** argv){
   
   std::ofstream csv(outfile);
   csv << "run_id,step,algo,opt,pivot,scheme,cutoff,depth,tail,run_threshold,iterative,reuse_buffer,fitness_ms,comparisons,swaps,n,trials_per_dist,dist_mask,pop_idx,temp\n";
+  
+  std::mt19937 rng(12345);
+  std::string run_id = "massive_" + std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(
+    std::chrono::system_clock::now().time_since_epoch()).count());
+  std::vector<QSDNA> qs_ga_pop, qs_sa_pop;
+  std::vector<MSDNA> ms_ga_pop, ms_sa_pop;
+  
+  QSDNA initial_qs_ga = create_random_qs_dna(rng);
+  MSDNA initial_ms_ga = create_random_ms_dna(rng);
+  QSDNA initial_qs_sa = create_random_qs_dna(rng);
+  MSDNA initial_ms_sa = create_random_ms_dna(rng);
+  
+  qs_ga_pop.push_back(initial_qs_ga);
+  ms_ga_pop.push_back(initial_ms_ga);
+  qs_sa_pop.push_back(initial_qs_sa);
+  ms_sa_pop.push_back(initial_ms_sa);
+  for(int gen = 0; gen < GENERATIONS; gen++){
+    int total_qs = qs_ga_pop.size() + qs_sa_pop.size();
+    int total_ms = ms_ga_pop.size() + ms_sa_pop.size();
+    std::cout << "\nGeneration " << gen << " - QS: " << total_qs 
+              << " (GA:" << qs_ga_pop.size() << " SA:" << qs_sa_pop.size() << ")"
+              << ", MS: " << total_ms 
+              << " (GA:" << ms_ga_pop.size() << " SA:" << ms_sa_pop.size() << ")\n";
