@@ -9,7 +9,14 @@ Watch sorting algorithms evolve in real-time using genetic algorithms and simula
 git clone https://github.com/Krish-B-Shah/DSA_Project_2_algo_evolution.git
 cd DSA_Project_2_algo_evolution
 mkdir -p build && cd build && cmake .. && cmake --build . --config Release && cd ..
-./build/experiment --out=data/logs/sample.csv --pop=6 --gens=2 --n=1000 --trials-per-dist=1
+
+./build/experiment --out=data/logs/sample.csv --pop=6 --gens=2 --n=100000 --trials-per-dist=1
+#if this fails to work, resort to steps below:
+# download Kaggle dataset first, then use it:
+# python3 -m pip install --user kagglehub
+# python3 scripts/download_kaggle.py
+# ./build/experiment --out=data/logs/sample.csv --use-kaggle --kaggle-path=data/logs/viral_data.csv --pop=6 --gens=2 --n=100000 --trials-per-dist=1
+
 python3 -m http.server 8010 --directory .
 # Then open http://localhost:8010/viz/index.html
 ```
@@ -19,7 +26,10 @@ python3 -m http.server 8010 --directory .
 git clone https://github.com/Krish-B-Shah/DSA_Project_2_algo_evolution.git
 cd DSA_Project_2_algo_evolution
 mkdir build; cd build; cmake ..; cmake --build . --config Release; cd ..
-.\build\Release\experiment.exe --out=data/logs/sample.csv --pop=6 --gens=2 --n=1000 --trials-per-dist=1
+
+# Demo: Kaggle dataset with 100K elements (auto-detects if dataset exists)
+.\build\Release\experiment.exe --out=data/logs/sample.csv --pop=6 --gens=2 --n=100000 --trials-per-dist=1
+
 python -m http.server 8010 --directory .
 # Then open http://localhost:8010/viz/index.html
 ```
@@ -92,7 +102,16 @@ cd ..
 
 **macOS/Linux:**
 ```bash
-./build/experiment --out=data/logs/sample.csv --pop=6 --gens=2 --n=1000 --trials-per-dist=1
+# Demo: Uses Kaggle dataset with 100K elements if available, else generated arrays
+./build/experiment --out=data/logs/sample.csv --pop=6 --gens=2 --n=100000 --trials-per-dist=1
+
+# Quick test (1000 elements, generated arrays - fastest)
+./build/experiment --out=data/logs/sample.csv --no-kaggle --pop=6 --gens=2 --n=1000 --trials-per-dist=1
+
+# Full test (both algorithms, both optimizers - slower)
+./build/experiment --out=data/logs/sample.csv --algo=both --opt=both --pop=6 --gens=2 --n=100000 --trials-per-dist=1
+
+# Note: Defaults to --algo=qs --opt=ga for speed. Kaggle dataset auto-detected if data/logs/viral_data.csv exists.
 ```
 
 **Windows:**
