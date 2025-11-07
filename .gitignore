@@ -23,4 +23,6 @@ hello
 hello.cpp
 *.cpp
 !src/**/*.cpp
-!DSA_Project_2_algo_evolution-main/src/**/*.cpp
+# Ignore extracted archive folders
+DSA_Project_2_algo_evolution-main*/
+DSA_Project_2_algo_evolution-main* */
